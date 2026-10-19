@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>研究者情報 登録フォーム</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .loading-spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #4f46e5;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen py-10 px-4 sm:px-6 lg:px-8 text-slate-800">
+
+  <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100">
+    
+    <!-- Form Header -->
+    <div class="bg-indigo-600 px-8 py-6 text-white">
+      <div class="flex items-center space-x-3">
+        <i class="fa-solid fa-graduation-cap text-3xl"></i>
+        <div>
+          <h1 class="text-2xl font-bold">研究者情報 登録フォーム</h1>
+          <p class="text-indigo-100 text-sm mt-1">Researcher Information Registration Form</p>
+        </div>
+      </div>
+    </div>
+
+    <form id="researchForm" class="p-8 space-y-6" onsubmit="event.preventDefault(); handleFormSubmit();">
+      
+      <!-- 1. 氏名 (日本語) -->
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-2">
+          氏名 (日本語) <span class="text-rose-500">*</span>
+        </label>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <input type="text" id="lastNameJa" placeholder="姓" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 transition">
+          <input type="text" id="firstNameJa" placeholder="名" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 transition">
+        </div>
+      </div>
+
+      <!-- 2. Name (英語) -->
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-2">
+          Name (英語) <span class="text-rose-500">*</span>
+        </label>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <input type="text" id="firstNameEn" placeholder="First Name" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 transition">
+          <input type="text" id="lastNameEn" placeholder="Last Name" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 transition">
+        </div>
+      </div>
+
+      <!-- 3. 学位・資格 -->
+      <div>
+        <label for="degree" class="block text-sm font-semibold text-slate-700 mb-1">学位・資格 (Post-nominal letters)</label>
+        <input type="text" id="degree" placeholder="例：MD, MPH, PhD" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 transition">
+        <p class="text-xs text-slate-500 mt-1">複数ある場合はカンマ区切りで記入してください</p>
+      </div>
+
+      <!-- 4. 所属 -->
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-2">所属 <span class="text-rose-500">*</span></label>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <label class="flex items-center p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+            <input type="radio" name="affiliation" value="医学部" onchange="toggleDepartmentVisibility()" required class="w-4 h-4 text-indigo-600">
+            <span class="ml-2 text-sm text-slate-700">医学部</span>
+          </label>
+          <label class="flex items-center p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+            <input type="radio" name="affiliation" value="薬学部" onchange="toggleDepartmentVisibility()" class="w-4 h-4 text-indigo-600">
+            <span class="ml-2 text-sm text-slate-700">薬学部</span>
+          </label>
+          <label class="flex items-center p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+            <input type="radio" name="affiliation" value="理学部" onchange="toggleDepartmentVisibility()" class="w-4 h-4 text-indigo-600">
+            <span class="ml-2 text-sm font-medium text-indigo-700">理学部</span>
+          </label>
+          <label class="flex items-center p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+            <input type="radio" name="affiliation" value="看護学部" onchange="toggleDepartmentVisibility()" class="w-4 h-4 text-indigo-600">
+            <span class="ml-2 text-sm text-slate-700">看護学部</span>
+          </label>
+          <label class="flex items-center p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+            <input type="radio" name="affiliation" value="健康科学部" onchange="toggleDepartmentVisibility()" class="w-4 h-4 text-indigo-600">
+            <span class="ml-2 text-sm text-slate-700">健康科学部</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 5. 学科 (理学部選択時のみ表示) -->
+      <div id="departmentSection" class="hidden transition-all duration-300 bg-slate-50 p-4 rounded-xl border border-slate-200">
+        <label class="block text-sm font-semibold text-slate-700 mb-2">
+          学科 <span class="text-xs text-indigo-600 font-normal">（理学部を選択したため必須）</span>
+        </label>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <label class="flex items-center p-2.5 rounded-lg bg-white border border-slate-200 hover:bg-indigo-50 cursor-pointer">
+            <input type="radio" name="department" value="化学科" class="w-4 h-4 text-indigo-600">
+            <span class="ml-2 text-sm text-slate-700">化学科</span>
+          </label>
+          <label class="flex items-center p-2.5 rounded-lg bg-white border border-slate-200 hover:bg-indigo-50 cursor-pointer">
+            <input type="radio" name="department" value="生物学科" class="w-4 h-4 text-indigo-600">
+            <span class="ml-2 text-sm text-slate-700">生物学科</span>
+          </label>
+          <label class="flex items-center p-2.5 rounded-lg bg-white border border-slate-200 hover:bg-indigo-50 cursor-pointer">
+            <input type="radio" name="department" value="生物分子科学科" class="w-4 h-4 text-indigo-600">
+            <span class="ml-2 text-sm text-slate-700">生物分子科学科</span>
+          </label>
+          <label class="flex items-center p-2.5 rounded-lg bg-white border border-slate-200 hover:bg-indigo-50 cursor-pointer">
+            <input type="radio" name="department" value="物理学科" class="w-4 h-4 text-indigo-600">
+            <span class="ml-2 text-sm text-slate-700">物理学科</span>
+          </label>
+          <label class="flex items-center p-2.5 rounded-lg bg-white border border-slate-200 hover:bg-indigo-50 cursor-pointer">
+            <input type="radio" name="department" value="情報科学科" class="w-4 h-4 text-indigo-600">
+            <span class="ml-2 text-sm text-slate-700">情報科学科</span>
+          </label>
+          <label class="flex items-center p-2.5 rounded-lg bg-white border border-slate-200 hover:bg-indigo-50 cursor-pointer">
+            <input type="radio" name="department" value="生命圏環境科学科" class="w-4 h-4 text-indigo-600">
+            <span class="ml-2 text-sm text-slate-700">生命圏環境科学科</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 6. 講座・教室・研究室 -->
+      <div>
+        <label for="labJa" class="block text-sm font-semibold text-slate-700 mb-1">講座・教室・研究室 (日本語)</label>
+        <input type="text" id="labJa" placeholder="例: 内科学第一講座" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 transition">
+      </div>
+
+      <!-- 7. 職位 -->
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-2">職位 <span class="text-rose-500">*</span></label>
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          <label class="flex items-center p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+            <input type="radio" name="jobPosition" value="教授" required class="w-4 h-4 text-indigo-600">
+            <span class="ml-2 text-sm text-slate-700">教授</span>
+          </label>
+          <label class="flex items-center p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+            <input type="radio" name="jobPosition" value="准教授" class="w-4 h-4 text-indigo-600">
+            <span class="ml-2 text-sm text-slate-700">准教授</span>
+          </label>
+          <label class="flex items-center p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+            <input type="radio" name="jobPosition" value="講師" class="w-4 h-4 text-indigo-600">
+            <span class="ml-2 text-sm text-slate-700">講師</span>
+          </label>
+          <label class="flex items-center p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+            <input type="radio" name="jobPosition" value="助教" class="w-4 h-4 text-indigo-600">
+            <span class="ml-2 text-sm text-slate-700">助教</span>
+          </label>
+          <label class="flex items-center p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+            <input type="radio" name="jobPosition" value="その他" class="w-4 h-4 text-indigo-600">
+            <span class="ml-2 text-sm text-slate-700">その他</span>
+          </label>
+        </div>
+      </div>
+
+      <hr class="border-slate-200 my-6">
+
+      <!-- 8 & 9. 研究分野 (日本語 / 英語 Gemini AI自動翻訳) -->
+      <div class="space-y-3 bg-amber-50/50 p-5 rounded-xl border border-amber-200">
+        <div>
+          <label for="fieldJa" class="block text-sm font-semibold text-slate-800 mb-1">
+            研究分野 (日本語) <span class="text-rose-500">*</span>
+          </label>
+          <input type="text" id="fieldJa" placeholder="例：循環器内科学、分子生物学" required
+                 oninput="handleAutoTranslate('fieldJa', 'fieldEn', 'fieldLoading')"
+                 class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 transition bg-white">
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label for="fieldEn" class="block text-sm font-semibold text-slate-800">Research Field (英語) <span class="text-rose-500">*</span></label>
+            <span id="fieldLoading" class="hidden flex items-center text-xs text-indigo-600 font-medium">
+              <span class="loading-spinner mr-1.5"></span> Gemini AI翻訳中...
+            </span>
+          </div>
+          <input type="text" id="fieldEn" placeholder="Gemini AIによる英訳結果が表示され、直接編集できます" required
+                 class="w-full px-4 py-2.5 rounded-lg border border-indigo-200 bg-indigo-50/30 text-indigo-900 focus:ring-2 focus:ring-indigo-500 font-medium transition">
+        </div>
+      </div>
+
+      <!-- 10 & 11. 研究テーマ (日本語 / 英語 Gemini AI自動翻訳) -->
+      <div class="space-y-3 bg-indigo-50/40 p-5 rounded-xl border border-indigo-100">
+        <div>
+          <label for="themeJa" class="block text-sm font-semibold text-slate-800 mb-1">研究テーマ (日本語) <span class="text-rose-500">*</span></label>
+          <textarea id="themeJa" rows="3" placeholder="研究テーマを入力してください..." required
+                    oninput="handleAutoTranslate('themeJa', 'themeEn', 'themeLoading')"
+                    class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 transition bg-white"></textarea>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label for="themeEn" class="block text-sm font-semibold text-slate-800">Research Interests (英語) <span class="text-rose-500">*</span></label>
+            <span id="themeLoading" class="hidden flex items-center text-xs text-indigo-600 font-medium">
+              <span class="loading-spinner mr-1.5"></span> Gemini AI翻訳中...
+            </span>
+          </div>
+          <textarea id="themeEn" rows="3" placeholder="Gemini AIによる英訳結果が自動表示されます。" required
+                    class="w-full px-4 py-2.5 rounded-lg border border-indigo-200 bg-indigo-50/30 text-indigo-900 focus:ring-2 focus:ring-indigo-500 font-medium transition"></textarea>
+        </div>
+      </div>
+
+      <!-- 12. Researchmap URL -->
+      <div>
+        <label for="researchmapUrl" class="block text-sm font-semibold text-slate-700 mb-1">Researchmap URL <span class="text-rose-500">*</span></label>
+        <input type="url" id="researchmapUrl" placeholder="https://researchmap.jp/..." required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 transition">
+      </div>
+
+      <!-- 13. その他のURL -->
+      <div>
+        <label for="otherUrl" class="block text-sm font-semibold text-slate-700 mb-1">その他のURL</label>
+        <input type="url" id="otherUrl" placeholder="https://..." class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 transition">
+      </div>
+
+      <!-- 14. 大学メールアドレス -->
+      <div>
+        <label for="universityEmail" class="block text-sm font-semibold text-slate-700 mb-1">大学メールアドレス <span class="text-rose-500">*</span></label>
+        <input type="email" id="universityEmail" placeholder="example@toho-u.ac.jp" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 transition">
+      </div>
+
+      <!-- 15. 同意 -->
+      <div>
+        <label class="inline-flex items-center p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+          <input type="checkbox" id="consent" required class="w-4 h-4 text-indigo-600 rounded">
+          <span class="ml-2 text-sm text-slate-700">英語サイトへの掲載について同意する <span class="text-rose-500">*</span></span>
+        </label>
+      </div>
+
+      <!-- 16. 備考 -->
+      <div>
+        <label for="remarks" class="block text-sm font-semibold text-slate-700 mb-1">備考</label>
+        <textarea id="remarks" rows="3" placeholder="その他特記事項があればご記入ください..." class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 transition"></textarea>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="pt-4 border-t border-slate-200">
+        <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg transition flex items-center justify-center space-x-2">
+          <i class="fa-solid fa-paper-plane"></i>
+          <span>登録情報を送信する</span>
+        </button>
+        <div id="statusMessage" class="mt-4 text-center text-sm font-medium hidden"></div>
+      </div>
+
+    </form>
+  </div>
+
+  <script>
+    const timers = {};
+
+    // 理学部選択時のみ学科項目を表示する制御
+    function toggleDepartmentVisibility() {
+      const selectedAffiliation = document.querySelector('input[name="affiliation"]:checked')?.value;
+      const deptSection = document.getElementById('departmentSection');
+      const deptRadios = document.querySelectorAll('input[name="department"]');
+
+      if (selectedAffiliation === '理学部') {
+        deptSection.classList.remove('hidden');
+        deptRadios.forEach(r => r.required = true);
+      } else {
+        deptSection.classList.add('hidden');
+        deptRadios.forEach(r => { r.checked = false; r.required = false; });
+      }
+    }
+
+    function handleAutoTranslate(sourceId, targetId, loadingId) {
+      if (timers[sourceId]) clearTimeout(timers[sourceId]);
+      timers[sourceId] = setTimeout(() => {
+        triggerTranslate(sourceId, targetId, loadingId);
+      }, 1000);
+    }
+
+    // Gemini APIによる学術英訳呼び出し
+    async function triggerTranslate(sourceId, targetId, loadingId) {
+      const sourceText = document.getElementById(sourceId).value.trim();
+      const targetElement = document.getElementById(targetId);
+      const loadingElement = document.getElementById(loadingId);
+
+      if (!sourceText) return;
+      loadingElement.classList.remove('hidden');
+
+      try {
+        const promptText = `Translate the following Japanese text into academic/professional English suitable for a university profile page or researcher database. Output ONLY the translated English text, without explanation or commentary.\n\nJapanese: "${sourceText}"`;
+
+        const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const translation = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+          if (translation) targetElement.value = translation;
+        }
+      } catch (err) {
+        console.error('Translation error:', err);
+      } finally {
+        loadingElement.classList.add('hidden');
+      }
+    }
+
+    // GAS Webhook へフォームデータをPOST送信
+    async function handleFormSubmit() {
+      const submitBtn = document.getElementById('submitBtn');
+      const statusMsg = document.getElementById('statusMessage');
+
+      const gasUrl = "https://script.google.com/macros/s/AKfycbwLgwamrOEqExqoDIawGmwGi2P6BvPyikJmF3hsMajz5vjw9TS4E2-ze0LEMW4YWoVq/exec";
+
+      const formData = {
+        lastNameJa: document.getElementById('lastNameJa').value,
+        firstNameJa: document.getElementById('firstNameJa').value,
+        firstNameEn: document.getElementById('firstNameEn').value,
+        lastNameEn: document.getElementById('lastNameEn').value,
+        degree: document.getElementById('degree').value,
+        affiliation: document.querySelector('input[name="affiliation"]:checked')?.value || '',
+        department: document.querySelector('input[name="department"]:checked')?.value || '',
+        labJa: document.getElementById('labJa').value,
+        jobPosition: document.querySelector('input[name="jobPosition"]:checked')?.value || '',
+        fieldJa: document.getElementById('fieldJa').value,
+        fieldEn: document.getElementById('fieldEn').value,
+        themeJa: document.getElementById('themeJa').value,
+        themeEn: document.getElementById('themeEn').value,
+        researchmapUrl: document.getElementById('researchmapUrl').value,
+        otherUrl: document.getElementById('otherUrl').value,
+        universityEmail: document.getElementById('universityEmail').value,
+        consent: document.getElementById('consent').checked ? '同意する' : '未同意',
+        remarks: document.getElementById('remarks').value
+      };
+
+      submitBtn.disabled = true;
+      submitBtn.classList.add('opacity-50');
+      statusMsg.className = "mt-4 text-center text-sm font-medium text-slate-600 block";
+      statusMsg.innerHTML = '⏳ 送信中...';
+
+      try {
+        await fetch(gasUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        statusMsg.className = "mt-4 p-3 bg-emerald-50 text-emerald-700 rounded-lg text-center text-sm font-medium block border border-emerald-200";
+        statusMsg.innerHTML = '✓ 登録が正常に完了し、スプレッドシートへ送信されました。';
+        document.getElementById('researchForm').reset();
+        toggleDepartmentVisibility();
+      } catch (err) {
+        console.error('Submit error:', err);
+        statusMsg.className = "mt-4 p-3 bg-rose-50 text-rose-700 rounded-lg text-center text-sm font-medium block border border-rose-200";
+        statusMsg.innerHTML = '✕ 送信エラーが発生しました。もう一度お試しください。';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-50');
+      }
+    }
+  </script>
+</body>
+</html>
