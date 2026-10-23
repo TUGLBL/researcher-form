@@ -275,7 +275,7 @@
       }, 1000);
     }
 
-    // Gemini APIによる学術英訳呼び出し
+    // GASのWebアプリ経由で自動翻訳を呼び出す処理
     async function triggerTranslate(sourceId, targetId, loadingId) {
       const sourceText = document.getElementById(sourceId).value.trim();
       const targetElement = document.getElementById(targetId);
@@ -284,19 +284,21 @@
       if (!sourceText) return;
       loadingElement.classList.remove('hidden');
 
-      try {
-        const promptText = `Translate the following Japanese text into academic/professional English suitable for a university profile page or researcher database. Output ONLY the translated English text, without explanation or commentary.\n\nJapanese: "${sourceText}"`;
+      const gasUrl = "https://script.google.com/macros/s/AKfycbwLgwamrOEqExqoDIawGmwGi2P6BvPyikJmF3hsMajz5vjw9TS4E2-ze0LEMW4YWoVq/exec";
 
-        const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent', {
+      try {
+        // GASへ翻訳のリクエストをPOST送信
+        const response = await fetch(gasUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: 'translate', text: sourceText })
         });
 
         if (response.ok) {
           const data = await response.json();
-          const translation = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
-          if (translation) targetElement.value = translation;
+          if (data && data.translation) {
+            targetElement.value = data.translation;
+          }
         }
       } catch (err) {
         console.error('Translation error:', err);
